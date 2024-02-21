@@ -4,11 +4,8 @@ pipeline {
     tools {
         maven 'local_maven'
     }
-    parameters {
-         string(name: 'staging_server', defaultValue: '13.232.37.20', description: 'Remote Staging Server')
-    }
-
-stages{
+    
+    stages{
         stage('Build'){
             steps {
                 sh 'mvn clean package'
@@ -22,10 +19,11 @@ stages{
         }
 
         stage ('Deployments'){
-            parallel{
-                stage ("Deploy to Staging"){
+            
+                stage ("Deploy to tomcat server"){
                     steps {
-                        sh "scp -v -o StrictHostKeyChecking=no **/*.war root@${params.staging_server}:/opt/tomcat/webapps/"
+                        deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://54.147.179.251:8080/')], contextPath: null, war: '**/*.war'
+
                     }
                 }
             }
